@@ -18,7 +18,7 @@ jobs:
       contents: read
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       - name: Set up uv
         uses: astral-sh/setup-uv@v5
       - name: Audit locked dependencies
@@ -32,7 +32,7 @@ jobs:
       contents: read
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       - name: Review pull request dependency changes
         uses: actions/dependency-review-action@v4
 
@@ -43,7 +43,7 @@ jobs:
       contents: read
     steps:
       - name: Check out full repository history
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
       - name: Scan for verified secrets
@@ -61,7 +61,7 @@ jobs:
       image: semgrep/semgrep@sha256:451b3d875c00dac7ed5db5293e584a07de11449a409c10b3c2d2652f429630b6
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       - name: Run Semgrep CE
         continue-on-error: true
         env:
