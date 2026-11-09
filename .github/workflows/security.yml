@@ -1,0 +1,69 @@
+name: Security
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions: {}
+
+
+jobs:
+  dependency-audit:
+    name: Dependency Audit
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v5
+      - name: Audit locked dependencies
+        run: uv audit --locked
+
+  dependency-review:
+    name: Dependency Review
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Review pull request dependency changes
+        uses: actions/dependency-review-action@v4
+
+  secret-scan:
+    name: Secret Scan
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Check out full repository history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Scan for verified secrets
+        uses: trufflesecurity/trufflehog@v3.95.5
+        with:
+          version: 3.95.5
+          extra_args: --results=verified
+
+  sast-scan:
+    name: SAST Scan
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    container:
+      image: semgrep/semgrep@sha256:451b3d875c00dac7ed5db5293e584a07de11449a409c10b3c2d2652f429630b6
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Run Semgrep CE
+        continue-on-error: true
+        env:
+          SEMGREP_SEND_METRICS: off
+        run: semgrep scan --config=auto --error
